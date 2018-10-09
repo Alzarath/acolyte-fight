@@ -2,7 +2,6 @@ import _ from 'lodash';
 import moment from 'moment';
 import express from 'express';
 import url from 'url';
-import * as uuid from 'uuid';
 
 import * as g from './server.model';
 import * as m from '../game/messages.model';
@@ -12,6 +11,8 @@ import * as dbStorage from './dbStorage';
 import * as games from './games';
 import * as loadMetrics from './loadMetrics';
 import * as sanitize from '../game/sanitize';
+import * as users from './users';
+import * as userStorage from './userStorage';
 
 import { getAuthToken } from './auth';
 import { getLocation } from './mirroring';
@@ -68,7 +69,6 @@ export function getExternalStatus() {
 
 export function onLogin(req: express.Request, res: express.Response) {
     onLoginAsync(req, res).catch(error => handleError(error, res));
-;
 }
 
 async function onLoginAsync(req: express.Request, res: express.Response): Promise<void> {
@@ -82,17 +82,17 @@ async function onLoginAsync(req: express.Request, res: express.Response): Promis
         }
 
         const allowCache = false;
-        let userId = await auth.getUserIdFromAccessKey(auth.discordAccessKey(discordUser), allowCache)
+        let userId = await userStorage.getUserIdFromAccessKey(users.discordAccessKey(discordUser), allowCache)
         if (userId) {
             // Associate this browser with the existing user
             logger.info(`Discord user ${discordUser.id} - ${discordUser.username} - logged in`);
-            await auth.associateAccessKey(auth.enigmaAccessKey(authToken), userId);
+            await userStorage.associateAccessKey(users.enigmaAccessKey(authToken), userId);
 
         } else {
             // Create a new user
             logger.info(`Discord user ${discordUser.id} - ${discordUser.username} - creating new user`);
 
-            userId = uuid.v4();
+            userId = users.generateUserId();
             const userSettings: g.UserSettings = {
                 userId,
                 name: sanitize.sanitizeName(discordUser.username),
@@ -101,8 +101,8 @@ async function onLoginAsync(req: express.Request, res: express.Response): Promis
             };
 
             await dbStorage.createOrUpdateUser(userSettings);
-            await auth.associateAccessKey(auth.discordAccessKey(discordUser), userId);
-            await auth.associateAccessKey(auth.enigmaAccessKey(authToken), userId);
+            await userStorage.associateAccessKey(users.discordAccessKey(discordUser), userId);
+            await userStorage.associateAccessKey(users.enigmaAccessKey(authToken), userId);
         }
 
         res.redirect('/');
@@ -119,8 +119,8 @@ export function onLogout(req: express.Request, res: express.Response) {
 async function onLogoutAsync(req: express.Request, res: express.Response): Promise<void> {
     const authToken = getAuthToken(req);
     if (authToken) {
-        const accessKey = auth.enigmaAccessKey(authToken);
-        await auth.disassociateAccessKey(accessKey);
+        const accessKey = users.enigmaAccessKey(authToken);
+        await userStorage.disassociateAccessKey(accessKey);
     }
     res.send("OK");
 }
@@ -140,7 +140,7 @@ function handleError(error: any, res: express.Response) {
 
 export async function onGetUserSettingsAsync(req: express.Request, res: express.Response): Promise<void> {
     const authToken = getAuthToken(req);
-    const userId = await auth.getUserIdFromAccessKey(auth.enigmaAccessKey(authToken));
+    const userId = await userStorage.getUserIdFromAccessKey(users.enigmaAccessKey(authToken));
     const user = await dbStorage.getUserById(userId);
     if (user) {
         const result: m.GetUserSettingsResponse = {
@@ -163,7 +163,7 @@ export function onUpdateUserSettings(req: express.Request, res: express.Response
 
 export async function onUpdateUserSettingsAsync(req: express.Request, res: express.Response): Promise<void> {
     const input = req.body as m.UpdateUserSettingsRequest;
-    if (!(input
+    if (!(required(input, "object")
         && required(input.name, "string")
         && required(input.buttons, "object") && Object.keys(input.buttons).map(key => input.buttons[key]).every(x => required(x, "string"))
         && required(input.rebindings, "object") && Object.keys(input.rebindings).map(key => input.rebindings[key]).every(x => required(x, "string"))
@@ -173,7 +173,7 @@ export async function onUpdateUserSettingsAsync(req: express.Request, res: expre
     }
 
     const authToken = getAuthToken(req);
-    const userId = await auth.getUserIdFromAccessKey(auth.enigmaAccessKey(authToken))
+    const userId = await userStorage.getUserIdFromAccessKey(users.enigmaAccessKey(authToken))
     if (userId) {
         const user: g.UserSettings = {
             userId: userId,

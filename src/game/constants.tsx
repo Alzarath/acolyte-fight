@@ -26,6 +26,10 @@ export namespace Matchmaking {
 	export const BotName = "AcolyteBot";
 }
 
+export namespace Stats {
+	export const WilsonConfidence = 1.96;
+}
+
 export namespace HeroColors {
 	export const MyHeroColor = '#00ccff';
 	export const BotColor = '#cccccc';

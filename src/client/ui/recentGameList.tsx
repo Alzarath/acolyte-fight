@@ -3,8 +3,10 @@ import moment from 'moment';
 import * as React from 'react';
 import * as ReactRedux from 'react-redux';
 import * as Reselect from 'reselect';
+import * as constants from '../../game/constants';
 import * as d from '../stats.model';
 import * as m from '../../game/messages.model';
+import * as mathUtils from '../../game/mathUtils';
 import * as s from '../store.model';
 import * as matches from '../core/matches';
 import * as storage from '../storage';
@@ -199,7 +201,7 @@ function calculateGlobalStats(games: GameRow[]): GlobalStats {
         players.set(stats.userHash, {
             ...stats,
             winRate,
-            winRateLowerBound: wilsonLowerBound(stats.wins, stats.games, 1.96),
+            winRateLowerBound: mathUtils.wilsonLowerBound(stats.wins, stats.games, constants.Stats.WilsonConfidence),
             killsPerGame: stats.kills / Math.max(1, stats.games),
             damagePerGame: stats.damage / Math.max(1, stats.games),
         });
@@ -209,17 +211,6 @@ function calculateGlobalStats(games: GameRow[]): GlobalStats {
         players,
         totals,
     };
-}
-
-function wilsonLowerBound(nSuccess: number, n: number, z: number) {
-    if (n === 0) {
-        return 0;
-    }
-
-    const nFailure = n - nSuccess;
-    const mean = (nSuccess + z * z / 2) / (n + z * z);
-    const interval = (z / (n + z * z)) * Math.sqrt((nSuccess * nFailure) / n + (z * z / 4));
-    return mean - interval;
 }
 
 function findSelf(games: GameRow[]): string {

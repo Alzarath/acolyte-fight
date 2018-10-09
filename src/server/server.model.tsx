@@ -53,6 +53,9 @@ export interface Game extends Replay {
     joinable: boolean;
     activeTick: number;
     closeTick: number;
+    winTick: number | null;
+
+    scores: Map<string, m.GameStats>; // socketId -> final score
 
     actions: Map<string, m.ActionMsg>; // heroId -> actionData
     messages: m.TextMsg[];

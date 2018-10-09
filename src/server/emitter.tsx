@@ -1,6 +1,8 @@
 import moment from 'moment';
 import * as uuid from 'uuid';
 import * as games from './games';
+import * as users from './users';
+import * as userStorage from './userStorage';
 import { AuthHeader, getAuthTokenFromSocket } from './auth';
 import { getStore } from './serverStore';
 import { getLocation, sanitizeHostname } from './mirroring';
@@ -73,6 +75,7 @@ function onConnection(socket: SocketIO.Socket) {
 	socket.on('party.leave', (data, callback) => onPartyLeaveMsg(socket, authToken, data, callback));
 	socket.on('join', (data, callback) => onJoinGameMsg(socket, authToken, data, callback));
 	socket.on('bot', data => onBotMsg(socket, data));
+	socket.on('score', data => onScoreMsg(socket, data));
 	socket.on('leave', data => onLeaveGameMsg(socket, data));
 	socket.on('action', data => onActionMsg(socket, data));
 	socket.on('replays', (data, callback) => onReplaysMsg(socket, authToken, data, callback));
@@ -366,7 +369,8 @@ function onJoinGameMsg(socket: SocketIO.Socket, authToken: string, data: m.JoinM
 		if (game) {
 			let heroId = null;
 			if (!data.observe && store.activeGames.has(game.id)) {
-				heroId = games.joinGame(game as g.Game, playerName, data.keyBindings, data.isBot, data.isMobile, authToken, socket.id);
+				const userHash = authToken ? (userStorage.getUserIdFromCache(users.enigmaAccessKey(authToken)) || users.anonymousUserHash(authToken)) : null;
+				heroId = games.joinGame(game as g.Game, playerName, data.keyBindings, data.isBot, data.isMobile, userHash, socket.id);
 			}
 
 			emitHero(socket.id, game, heroId);
@@ -401,6 +405,49 @@ function onBotMsg(socket: SocketIO.Socket, data: m.BotMsg) {
 		}
 		logger.info(`Game [${game.id}]: playing vs AI`);
 	}
+}
+
+function onScoreMsg(socket: SocketIO.Socket, data: m.ScoreMsg) {
+	if (!(required(data, "object")
+		&& required(data.category, "string")
+		&& required(data.gameId, "string")
+		&& required(data.lengthSeconds, "number")
+		&& required(data.winner, "string")
+		&& required(data.players, "object")
+		&& data.players.every(p =>
+			required(p.userHash, "string")
+			&& required(p.name, "string")
+			&& required(p.damage, "number")
+			&& required(p.kills, "number")
+		)
+	)) {
+		// callback({ success: false, error: "Bad request" });
+		return;
+	}
+
+	const game = getStore().activeGames.get(data.gameId);
+	if (game) {
+		const location = getLocation();
+		const unixTimestamp = game.created.unix();
+		games.receiveScore(game, socket.id, untaintScore(data, unixTimestamp, location.server));
+	}
+}
+
+// Don't allow users to inject fields other than the ones requested
+function untaintScore(data: m.ScoreMsg, unixTimestamp: number, server: string): m.GameStats {
+	return {
+		category: data.category,
+		lengthSeconds: data.lengthSeconds,
+		unixTimestamp,
+		winner: data.winner,
+		players: data.players.map(p => ({
+			userHash: p.userHash,
+			name: p.name,
+			damage: p.damage,
+			kills: p.kills,
+		})),
+		server,
+	};
 }
 
 function onLeaveGameMsg(socket: SocketIO.Socket, data: m.LeaveMsg) {

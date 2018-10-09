@@ -1,12 +1,14 @@
 import _ from 'lodash';
 import crypto from 'crypto';
 import moment from 'moment';
+import * as uuid from 'uuid';
 import { Matchmaking, TicksPerSecond, MaxIdleTicks, TicksPerTurn } from '../game/constants';
 import * as g from './server.model';
 import * as m from '../game/messages.model';
 import * as auth from './auth';
 import * as constants from '../game/constants';
 import * as gameStorage from './gameStorage';
+import * as statsStorage from './statsStorage';
 import { getStore } from './serverStore';
 import { addTickMilliseconds } from './loadMetrics';
 import { logger } from './logging';
@@ -236,6 +238,8 @@ export function initGame(room: g.Room | null, privatePartyId: string | null, all
 		activeTick: 0,
 		joinable: true,
 		closeTick: Matchmaking.MaxHistoryLength,
+		winTick: null,
+		scores: new Map<string, m.GameStats>(),
 		actions: new Map<string, m.ActionMsg>(),
 		messages: new Array<m.TextMsg>(),
 		history: [],
@@ -411,6 +415,11 @@ function isSpell(actionData: m.ActionMsg): boolean {
 	return actionData.actionType === "game" && actionData.spellId !== "move" && actionData.spellId !== "retarget";
 }
 
+export function receiveScore(game: g.Game, socketId: string, stats: m.GameStats) {
+	game.scores.set(socketId, stats);
+	game.winTick = game.tick;
+}
+
 export function leaveGame(game: g.Game, socketId: string) {
 	let player = game.active.get(socketId);
 	if (!player) {
@@ -460,10 +469,16 @@ function reassignBots(game: g.Game, leavingHeroId: string, leftSocketId: string)
 }
 
 function finishGameIfNecessary(game: g.Game) {
+	if (game.tick >= game.winTick + MaxIdleTicks) {
+		// Forcibly remove everyone from the game
+		game.active.clear();
+	}
+
 	if (game.active.size === 0) {
 		game.bots.clear();
 		getStore().activeGames.delete(game.id);
 		gameStorage.saveGame(game);
+		statsStorage.saveGame(game);
 
 		logger.info("Game [" + game.id + "]: finished after " + game.tick + " ticks");
 		return true;
@@ -516,7 +531,7 @@ export function isGameRunning(game: g.Game) {
 	return (game.tick - game.activeTick) < MaxIdleTicks;
 }
 
-export function joinGame(game: g.Game, playerName: string, keyBindings: KeyBindings, isBot: boolean, isMobile: boolean, authToken: string | null, socketId: string) {
+export function joinGame(game: g.Game, playerName: string, keyBindings: KeyBindings, isBot: boolean, isMobile: boolean, userHash: string | null, socketId: string) {
 	if (!game.joinable || game.active.size >= Matchmaking.MaxPlayers) {
 		return null;
 	}
@@ -537,7 +552,6 @@ export function joinGame(game: g.Game, playerName: string, keyBindings: KeyBindi
 	game.bots.delete(heroId);
 	game.playerNames.push(playerName);
 
-	const userHash = authToken ? auth.getUserHashFromAuthToken(authToken) : null;
 	queueAction(game, { gameId: game.id, heroId, actionType: "join", userHash, playerName, keyBindings, isBot, isMobile });
 
 	// Update counts

@@ -30,8 +30,12 @@ class LoginButton extends React.Component<Props> {
         if (this.props.loginAttempted) {
             return this.props.loggedIn ? this.renderLoggedIn() : this.renderNotLoggedIn();
         } else {
-            return null;
+            return this.renderLoggingIn();
         }
+    }
+
+    private renderLoggingIn() {
+        return <NavBarItem className="logging-in" page="login" onClick={() => { /* do nothing, just follow the link */ }}>Login</NavBarItem>
     }
 
     private renderNotLoggedIn() {

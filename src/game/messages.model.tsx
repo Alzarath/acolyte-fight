@@ -1,4 +1,4 @@
-import * as c from './world.model';
+import * as d from '../client/stats.model';
 
 export const AuthCookieName = "enigma-auth";
 
@@ -111,6 +111,10 @@ export interface JoinResponse {
 export type JoinResponseMsg = JoinResponse | ErrorResponseMsg;
 
 export interface BotMsg {
+    gameId: string;
+}
+
+export interface ScoreMsg extends GameStats {
     gameId: string;
 }
 
@@ -279,3 +283,20 @@ export interface CreateRoomResponse {
     server: string;
 }
 export type CreateRoomResponseMsg = CreateRoomResponse | ErrorResponseMsg;
+
+
+export interface GameStats {
+    category: string;
+    unixTimestamp: number;
+    winner: string; // user id or anonynous user hash
+    lengthSeconds: number;
+    players: PlayerStats[];
+    server: string;
+}
+
+export interface PlayerStats {
+    userHash: string;
+    name: string;
+    kills: number;
+    damage: number;
+}
