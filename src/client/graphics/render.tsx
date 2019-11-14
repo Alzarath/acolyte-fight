@@ -1559,17 +1559,20 @@ function heroBodyInstructions(ctxStack: CanvasCtxStack, player: w.Player, world:
 		radius: radiusPixels,
 		skin: {
 			body: {
-				numPoints: 0,
-				bend: 1,
+				numPoints: 3,
+				bend: 1.4,
+
+				stroke: 0.1,
+				strokeMask: '#000c',
 			},
 			glyph: {
 				rise: 0.5,
 				inflect: 0,
 
-				attack: 0,
-				fall: 1,
+				attack: 1,
+				fall: 2,
 
-				span: 1,
+				span: 2,
 			},
 		},
 		height: atlasPixels,
@@ -1716,9 +1719,9 @@ function renderHeroBars(ctxStack: CanvasCtxStack, hero: w.Hero, pos: pl.Vec2, wo
 		const barShine = pl.Vec2(barLeft.x + shineProportion * 2 * barHalfWidth, barY);
 		const barRight = pl.Vec2(pos.x + barHalfWidth, barY);
 
-		glx.lineTrail(ctxStack, barLeft, barRight, {
+		glx.lineTrail(ctxStack, pl.Vec2(barLeft.x - constants.Pixel, barLeft.y), pl.Vec2(barRight.x + constants.Pixel, barRight.y), {
 			color: ColTuple.parse("#111"),
-			maxRadius: barHalfHeight,
+			maxRadius: barHalfHeight + 2 * constants.Pixel,
 		});
 		glx.lineTrail(ctxStack, barLeft, barMid, {
 			color,

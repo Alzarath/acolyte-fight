@@ -5,9 +5,22 @@ html, body {
 }
 
 body {
-    background: #181818 linear-gradient(to right, #242424, #181818 50%, #242424);
+    background: #181818 linear-gradient(to right, #333, #222 50%, #333);
     font-family: "Maven Pro", "Helvetica", "Arial", sans-serif;
     font-size: 14pt;
+
+   text-shadow:
+     2px 2px 1px #000,
+     -1px -1px 0 #000c,  
+      1px -1px 0 #000c,
+      -1px 1px 0 #000c,
+       1px 1px 0 #000c,
+      0px -1px 0 #000c,  
+      0px 1px 0 #000c,
+      -1px 0px 0 #000c,
+       1px 0px 0 #000c
+       ;
+
     color: white;
 
     width: 100%;
@@ -191,7 +204,7 @@ a, a:visited {
 }
 a:hover, a:active {
     color: #f80;
-    text-shadow: 0 0 8px #f808;
+    /* text-shadow: 0 0 8px #f808; */
     animation: shine-loop 0.5s alternate infinite linear;
 }
 
@@ -232,8 +245,9 @@ a:hover, a:active {
     cursor: pointer;
     text-align: center;
     box-shadow: 4px 4px #0008;
-    text-shadow: 1px 1px 1px black;
+    /* text-shadow: 1px 1px 1px black; */
     border-radius: 0.125em;
+    border: 1px #000c solid;
     background: #0cf linear-gradient(to bottom, #fff4 0%, #fff4 7%, #0000 7%, #0000 93%, #0004 93%, #0004);
     padding: 10px 40px;
 }
@@ -375,7 +389,7 @@ a:hover, a:active {
     background: #00ccff;
     cursor: pointer;
     box-shadow: 3px 3px 3px #0c0c0c;
-    text-shadow: 1px 1px 1px black;
+    /* text-shadow: 1px 1px 1px black; */
 }
 
 .navbar .nav-item.login-btn:hover {
@@ -495,7 +509,7 @@ a:hover, a:active {
     font-family: "ChicagoFLF", "Helvetica", sans-serif;
     font-size: 600%;
     font-weight: bold;
-    text-shadow: 0.1em 0.1em 0.1em black;
+    /* text-shadow: 0.1em 0.1em 0.1em black; */
     font-style: italic;
     opacity: 0.9;
 
@@ -639,7 +653,7 @@ a:hover, a:active {
 }
 
 .social-bar a {
-    color: #eee4;
+    color: #eee6;
     font-size: 250%;
     margin-left: 0.2em;
 }
@@ -1374,6 +1388,7 @@ h3 {
 
 .spell-config .key {
     box-sizing: border-box;
+    border: 1px #000c solid;
     display: flex;
     margin-bottom: 60px;
     height: 250px;
@@ -1395,7 +1410,7 @@ h3 {
     background-color: #555;
     background-color: var(--spell-color);
     box-shadow: 0 0 8px var(--spell-color);
-    text-shadow: 1px 2px 1px #0004;
+    /* text-shadow: 1px 2px 1px #0004; */
 }
 
 .spell-config .key-name-container {
@@ -1502,7 +1517,7 @@ h3 {
     text-transform: capitalize;
     font-size: 250%;
 
-    text-shadow: 2px 4px #00000088;
+    /* text-shadow: 2px 4px #00000088; */
 }
 
 .spell-config .spell-name {
@@ -1707,7 +1722,7 @@ h3 {
 .stats-card-row .stats-card .value {
     font-size: 500%;
     font-weight: bold;
-    text-shadow: 2px 2px 2px black;
+    /* text-shadow: 2px 2px 2px black; */
 }
 
 @media (max-width: 768px) {

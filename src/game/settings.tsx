@@ -78,8 +78,8 @@ const Obstacle: ObstacleSettings = {
 const Visuals: VisualSettings = {
     Background: '#000',
     DefaultWorldColor: '#222',
-    WorldStrokeProportion: 0.01,
-    WorldStrokeBrightness: 0.05,
+    WorldStrokeProportion: 0.005,
+    WorldStrokeBrightness: -0.75,
 
     WorldHexHeight: 7,
     WorldHexWidth: 10,
