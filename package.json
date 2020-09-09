@@ -69,7 +69,7 @@
     "glicko2": "^0.8.4",
     "immutable": "^3.8.2",
     "localforage": "^1.7.2",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.19",
     "moment": "^2.22.2",
     "msgpack-lite": "^0.1.26",
     "nanotimer": "^0.3.15",
