@@ -5,8 +5,8 @@ Acolyte Fight is no more. This is the source code to Acolyte Fight! It is provid
 You can run this game by itself on your own machine by following the instructions below.
 
 Things to install:
-* NodeJS: https://nodejs.org
-* yarn: `npm install -g yarn`
+* NodeJS: https://nodejs.org (download and install the LTS (long-term support) version)
+* yarn: `npm install -g yarn` (if you're on Windows, type this into PowerShell. If you're on Mac, type this into the Terminal)
 
 How to run:
 1. `yarn`
