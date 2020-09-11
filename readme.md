@@ -10,7 +10,9 @@ Things to install:
 
 How to run:
 1. `yarn`
-2. `yarn start`
+2. `yarn run build`
+3. `yarn run server`
+4. Go to http://localhost:7770 in your browser
 
 # License
 You may use this codebase in part or in full for any free project, as long as you credit the author. You may not use this in any commercial project or make any money off any part of this codebase without the express permission of the author.
