@@ -39,6 +39,8 @@ export function acoDecayKeyString(key: db.AcoDecayKey) {
 
 export async function decrementAco() {
     const firestore = getFirestore();
+    if (!firestore) { return; }
+
     const unix = moment().unix() - AcoDecayLength;
     const query = firestore.collection(Collections.AcoDecay).where('unixCeiling', '<=', unix);
 

@@ -155,7 +155,8 @@ function onlineToMsg(player: g.OnlinePlayer, score: g.PlayerScore): m.OnlinePlay
 }
 
 async function loadScoreboard(): Promise<void> {
-    const firestore = getFirestore();
+	const firestore = getFirestore();
+	if (!firestore) { return; }
 
 	const start = Date.now();
     const query = getLeaderboardCollection(firestore).orderBy('expiry'); // Read oldest to newest so newer entries overwrite older entries
@@ -265,6 +266,8 @@ function sendUpdate(scoreboard: g.Scoreboard, updated: g.PlayerScore[]) {
 
 async function writeUpdate(scoreboard: g.Scoreboard, updated: g.PlayerScore[]) {
 	const firestore = getFirestore();
+	if (!firestore) { return; }
+
 	const collection = getLeaderboardCollection(firestore);
 
 	for (const score of updated) {
@@ -321,6 +324,8 @@ export async function cleanupScoreboards() {
 
 export async function cleanupScoreboard(scoreboard: g.Scoreboard) {
 	const firestore = getFirestore();
+	if (!firestore) { return; }
+
 	const collection = getLeaderboardCollection(firestore);
 	const now = moment().unix();
 	for (const score of wu(scoreboard.scores.values()).toArray()) {

@@ -7,7 +7,6 @@ import * as m from '../../shared/messages.model';
 import * as modder from '../../game/modder';
 import * as w from '../../game/world.model';
 import * as settings from '../../game/settings';
-import { getFirestore } from '../storage/dbStorage';
 import { getStore } from '../serverStore';
 import { logger } from '../status/logging';
 import { DefaultSettings } from '../../game/settings';

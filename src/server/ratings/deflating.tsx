@@ -23,6 +23,8 @@ export async function deflateAcoIfNecessary(category: string) {
     const intervalMilliseconds = constants.Placements.AcoDeflateIntervalHours * 60 * 60 * 1000;
 
     const firestore = getFirestore();
+    if (!firestore) { return; }
+
     const shouldUpdate = await firestore.runTransaction(async (t) => {
         const doc = await t.get(firestore.collection(Collections.RatingDecay).doc(Singleton));
         const data = doc.data() as db.RatingDecaySingleton;
@@ -44,6 +46,7 @@ export async function deflateAcoIfNecessary(category: string) {
 
 async function deflateAco(category: string, decayPerInterval: number) {
     const firestore = getFirestore();
+    if (!firestore) { return; }
 
     let numAffected = 0;
     const leaderboardResponse = await leaderboards.retrieveLeaderboard(category);

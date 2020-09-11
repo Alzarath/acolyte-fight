@@ -33,6 +33,7 @@ export function dbToLoadout(dbLoadout: db.Loadout): m.Loadout {
 
 export async function getLoadouts(userId: string): Promise<m.Loadout[]> {
     const firestore = getFirestore();
+    if (!firestore) { return []; }
 
     const docSnapshot = await firestore.collection(Collections.Loadouts).doc(userId).get();
 
@@ -46,6 +47,7 @@ export async function getLoadouts(userId: string): Promise<m.Loadout[]> {
 
 export async function setLoadouts(userId: string, loadouts: m.Loadout[]): Promise<void> {
     const firestore = getFirestore();
+    if (!firestore) { return; }
 
     const dbLoadouts: db.Loadouts = {
         loadouts: loadouts.map(loadoutToDb),

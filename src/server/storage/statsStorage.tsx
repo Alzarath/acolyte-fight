@@ -177,6 +177,8 @@ export function dbToProfile(userId: string, data: db.User, estimatePercentile: E
 
 export async function loadGame(gameId: string) {
     const firestore = getFirestore();
+    if (!firestore) { return null; }
+
     const gameDoc = await firestore.collection(Collections.Game).doc(gameId).get();
     if (gameDoc.exists) {
         const game = dbToGameStats(gameDoc.id, gameDoc.data() as db.Game);
@@ -186,8 +188,10 @@ export async function loadGame(gameId: string) {
     }
 }
 
-export async function loadGamesForUser(userId: string, after: number | null, before: number | null, limit: number) {
+export async function loadGamesForUser(userId: string, after: number | null, before: number | null, limit: number): Promise<m.GameStatsMsg[]> {
     const firestore = getFirestore();
+    if (!firestore) { return []; }
+
     let query = firestore.collection(Collections.Game).where('userIds', 'array-contains', userId).orderBy("unixTimestamp", "desc").limit(limit);
     if (after) {
         query = query.startAfter(after);
@@ -207,6 +211,8 @@ export async function loadGamesForUser(userId: string, after: number | null, bef
 
 export async function streamAllGamesAfter(afterUnix: number, callback: (game: m.GameStatsMsg) => void) {
     const firestore = getFirestore();
+    if (!firestore) { return; }
+
     let query = firestore.collection(Collections.Game).where('unixTimestamp', '>', afterUnix);
 
     await dbStorage.stream(query, gameDoc => {
@@ -217,6 +223,8 @@ export async function streamAllGamesAfter(afterUnix: number, callback: (game: m.
 
 export async function streamAllUserRatingsAfter(timestamp: Firestore.Timestamp, callback: (user: db.User) => void) {
     const firestore = getFirestore();
+    if (!firestore) { return; }
+
     const query = firestore.collection(db.Collections.User).where('accessed', '>=', timestamp).select('ratings');
 
     await dbStorage.stream(query, doc => {
@@ -227,12 +235,16 @@ export async function streamAllUserRatingsAfter(timestamp: Firestore.Timestamp, 
 
 export async function saveGameStats(gameStats: m.GameStatsMsg) {
     const firestore = getFirestore();
+    if (!firestore) { return; }
+
     const data = gameStatsToDb(gameStats);
     await firestore.collection(Collections.Game).doc(gameStats.gameId).set(data);
 }
 
 export async function cleanupGames() {
     const firestore = getFirestore();
+    if (!firestore) { return; }
+
     const cutoff = moment().subtract(constants.MaxGameAgeInDays, 'days').unix();
     const query = firestore.collection(Collections.Game).where('unixTimestamp', '<', cutoff);
 
@@ -249,6 +261,8 @@ export async function cleanupGames() {
 
 export async function getProfile(userId: string, estimatePercentile: EstimatePercentile): Promise<m.GetProfileResponse> {
     const firestore = getFirestore();
+    if (!firestore) { return undefined; }
+
     const doc = await firestore.collection('user').doc(userId).get();
     const profile = dbToProfile(userId, doc.data() as db.User, estimatePercentile);
     return profile;
@@ -256,6 +270,8 @@ export async function getProfile(userId: string, estimatePercentile: EstimatePer
 
 export async function getUserRating(userId: string, category: string): Promise<g.UserRating> {
     const firestore = getFirestore();
+    if (!firestore) { return undefined; }
+
     const doc = await firestore.collection('user').doc(userId).get();
     return dbToUserRating(doc.data() as db.User, category);
 }

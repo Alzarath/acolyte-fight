@@ -15,6 +15,9 @@ import { logger } from '../status/logging';
 
 export async function retrieveLeaderboard(category: string): Promise<m.GetLeaderboardResponse> {
     const firestore = getFirestore();
+    if (!firestore) {
+        return { leaderboard: [] };
+    }
 
     const MaxLeaderboardLength = constants.Placements.MaxLeaderboardLength;
     const query = firestore.collection('user').orderBy(`ratings.${category}.acoExposure`, 'desc').limit(MaxLeaderboardLength);

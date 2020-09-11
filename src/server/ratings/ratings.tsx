@@ -72,6 +72,7 @@ export async function saveGame(game: g.Game, gameStats: m.GameStatsMsg): Promise
 
 async function updateRatingsIfNecessary(gameStats: m.GameStatsMsg, isRankedLookup: Map<string, boolean>): Promise<UpdateRatingsResult> {
     const firestore = getFirestore();
+    if (!firestore) { return null; }
 
     const category = gameStats.category;
     const knownPlayers = gameStats.players.filter(p => !!p.userId);

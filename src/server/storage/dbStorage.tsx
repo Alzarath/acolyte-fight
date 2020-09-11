@@ -18,8 +18,15 @@ export function getFirestore() {
 
 function recreateFirestore() {
     logger.info("Recreating firestore...");
-    firestore = new Firestore.Firestore({
-    });
+    try {
+        const newFirestore = new Firestore.Firestore({
+        });
+        if (newFirestore) {
+            firestore = newFirestore;
+        }
+    } catch (exception) {
+        logger.error("Error creating firestore", exception);
+    }
 }
 
 export function init() {

@@ -9,7 +9,6 @@ import * as categories from '../../shared/segments';
 import * as constants from '../../game/constants';
 import * as statsProvider from './statsProvider';
 import { Collections, Singleton } from '../storage/db.model';
-import { getFirestore } from '../storage/dbStorage';
 import { logger } from '../status/logging';
 
 export interface TeamRating {
