@@ -40,7 +40,8 @@ program.option('--port <port>', 'Port number');
 program.parse(process.argv);
 
 const port = program.port || process.env.PORT || 7770;
-const enigmaSecret = process.env.ENIGMA_SECRET || null;
+const noDb = !process.env.GOOGLE_APPLICATION_CREDENTIALS;
+const enigmaSecret = process.env.ENIGMA_SECRET || "1234567890abcdef";
 const discordSecret = process.env.DISCORD_SECRET || null;
 const facebookSecret = process.env.FACEBOOK_SECRET || null;
 const kongregateSecret = process.env.KONGREGATE_SECRET || null;
@@ -55,7 +56,7 @@ logger.info(`Settings: port=${port} maxReplays=${maxReplays} cleanupIntervalMinu
 
 api.init(port);
 auth.init(enigmaSecret);
-dbStorage.init();
+dbStorage.init(noDb);
 discord.init(discordSecret);
 facebook.init(facebookSecret);
 kongregate.init(kongregateSecret);
@@ -163,6 +164,7 @@ http.on('close', () => {
 process.on('SIGINT', () => {
 	logger.info("Received SIGINT");
 	emitter.shutdown();
+	http.close();
 });
 
 process.on('SIGTERM', () => {

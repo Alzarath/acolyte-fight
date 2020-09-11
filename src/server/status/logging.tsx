@@ -6,8 +6,13 @@ const GoogleCloudLogging = require('@google-cloud/logging-winston').LoggingWinst
 let transports: Array<Transport> = [
 	new winston.transports.Console(),
 	new winston.transports.File({ filename: 'logs/server.log' }),
-	new GoogleCloudLogging(),
 ];
+
+try {
+	transports.push(new GoogleCloudLogging());
+} catch (exception) {
+	console.error(`Unable to initialise gcloud logging: ${exception}`);
+}
 
 export const logger = winston.createLogger({
 	level: 'info',
