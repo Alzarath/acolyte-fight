@@ -1,18 +1,35 @@
 # Acolyte Fight!
 Acolyte Fight is no more. This is the source code to Acolyte Fight! It is provided as is. It is probably very hard to run as it probably requires various keys to Google Cloud Platform and Discord to be passed in as environment variables. This is not an example of perfect code, it is an example of realistic code. In reality code has to be written very fast on a small budget and has to change a lot.
 
-# How to run
-You can run this game by itself without a database by following the instructions below.
+# Instructions
+You can run this game by itself on your own machine by following the instructions below.
 
 Things to install:
-* yarn
-* NodeJS 8 - cannot be higher because it uses the native uws library which was not compiled for Node 10
+* NodeJS: https://nodejs.org
+* yarn: `npm install -g yarn`
 
 How to run:
 1. `yarn`
 2. `yarn run build`
 3. `yarn run server`
 4. Go to http://localhost:7770 in your browser
+
+## Development
+You may want to use the file watcher, which automatically detects changes to files, rebuilds the code, and restarts the server.
+
+1. `yarn`
+2. `yarn start`
+
+The server is coded to work without a database, but some functionality may be limited. To develop this for real, with all features available, you should:
+* Create a Google Cloud Platform service account credentials so that the server can use your Firestore database and set your GOOGLE_APPLICATION_CREDENTIALS environment variable to point to your credentials file: https://cloud.google.com/docs/authentication/getting-started
+* Create a Discord application and set the DISCORD_SECRET to your Discord app client key: https://discord.com/developers/applications
+
+## Production
+The `./build_and_push.sh` bash script will build the server as a docker container and try to push it to my Google Cloud Platform docker registry.
+You should change this to your own docker registry.
+
+You should:
+* Set the ENIGMA_SECRET environment variable to something that only you know, as this is used to authenticate users.
 
 # License
 You may use this codebase in part or in full for any free project, as long as you credit the author. You may not use this in any commercial project or make any money off any part of this codebase without the express permission of the author.
